@@ -46,12 +46,17 @@ async def run_baby(app: FastAPI, engine: BabyEngine, store: BabyStore) -> None:
 
 def baby_status(engine: BabyEngine) -> dict:
     signal = engine.current
+    observation = None
+    if signal:
+        observation = rules.OBSERVATION_OVERRIDES.get(
+            signal.rule, engine.catalog.behaviors[signal.behavior_id].observation
+        )
     return {
         "age_months": engine.state.age_months,
         "emotion": signal.emotion if signal else "평온",
         "action": asdict(signal.action if signal else rules.NEUTRAL),
         "behavior_id": signal.behavior_id if signal else None,
-        "signal": engine.catalog.behaviors[signal.behavior_id].label if signal else None,
+        "signal": observation,
         "needs": {key: getattr(engine.state, key) for key in sorted(NEEDS)},
         "demo": engine.speed != 1,
     }

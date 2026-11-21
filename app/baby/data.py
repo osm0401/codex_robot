@@ -16,6 +16,7 @@ class BehaviorDataError(ValueError):
 @dataclass(frozen=True)
 class Behavior:
     label: str
+    observation: str
     start: float
     end: float
 
@@ -95,7 +96,8 @@ def load_catalog(directory: Path = DATA_PATH) -> Catalog:
 
 def _read_catalog(directory: Path) -> Catalog:
     behaviors: dict[str, Behavior] = {}
-    for row in rows(directory, "behaviors.csv", "ID", "행동", "시작 월령", "끝 월령", "AI 욕구·신호 매핑"):
+    for row in rows(directory, "behaviors.csv", "ID", "행동", "어떻게 보이나", "시작 월령",
+                    "끝 월령", "AI 욕구·신호 매핑"):
         key = row["ID"]
         start, end = float(row["시작 월령"]), float(row["끝 월령"])
         if not re.fullmatch(r"B\d{3}", key) or key in behaviors or not row["행동"].strip():
@@ -103,7 +105,7 @@ def _read_catalog(directory: Path) -> Catalog:
         # 원본에는 영아기 이후에도 지속되는 행동의 범위가 있다.
         if not 0 <= start <= end <= 60:
             raise BehaviorDataError("행동 자료의 월령 범위를 확인해 주세요.")
-        behaviors[key] = Behavior(row["행동"], start, end)
+        behaviors[key] = Behavior(row["행동"], row["어떻게 보이나"], start, end)
 
     ranges = {
         **dict.fromkeys(NEEDS, "0~1"),

@@ -44,6 +44,14 @@ class Signal:
 
 
 NEUTRAL = Action("neutral", "neutral")
+# 일부 원본 관찰란에는 원인이나 돌봄 결과가 섞여 있다. 화면에는 지금 보이는 모습만 쓴다.
+OBSERVATION_OVERRIDES = {
+    "diaper_fuss": "몸을 비틀며 칭얼거려요.",
+    "gas_fuss": "몸을 비틀며 칭얼거려요.",
+    "want_hold": "팔을 움직이며 울어요.",
+    "not_sleepy_yet": "눈을 뜨고 칭얼거려요.",
+    "hunger_cue": "입을 움직이며 칭얼거려요.",
+}
 SIGNALS = {
     "hunger": (
         Signal("hunger_cry", "B054", Action("cry", "cry"), "울음", 0.85),

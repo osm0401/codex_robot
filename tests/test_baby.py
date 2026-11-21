@@ -10,6 +10,7 @@ from app.baby import rules
 from app.baby.data import DATA_PATH, BehaviorDataError, load_catalog
 from app.baby.engine import BabyEngine, State
 from app.baby.store import BabyStore
+from app.main import baby_status
 
 
 @pytest.fixture(scope="module")
@@ -107,3 +108,12 @@ def test_demo_ignores_days_and_accelerates_need_changes(catalog):
     assert normal.state.age_months == 0
     assert demo.state.age_months == 12
     assert demo.state.hunger - state.hunger > normal.state.hunger - state.hunger
+
+
+def test_status_shows_observable_cue_instead_of_cause_label(catalog):
+    engine = BabyEngine(catalog, State(0, hunger=0.95), clock=lambda: 1, wall_clock=lambda: 1)
+    engine.tick()
+    status = baby_status(engine)
+    assert status["behavior_id"] == "B054"
+    assert status["signal"] == catalog.behaviors["B054"].observation
+    assert "배고파서" not in status["signal"]
