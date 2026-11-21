@@ -1,0 +1,49 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, "Malgun Gothic", sans-serif;
+  color: #293b34;
+  background: #f5f6ee;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+.nursery { max-width: 760px; padding: 0 24px 36px; margin: auto; }
+.top { min-height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.top h1 { margin: 0; font-size: 1.15rem; }
+a { color: #335f50; text-underline-offset: .18em; }
+.baby { position: relative; padding: 20px 20px 24px; text-align: center; background: #eee9d7; border-radius: 28px; }
+.demo { position: absolute; inset: 18px 18px auto auto; margin: 0; color: #485047; font-size: .85rem; }
+.portrait { display: block; width: min(100%, 260px); margin: 0 auto 8px; }
+.expression { color: #48392f; fill: currentColor; stroke: currentColor; stroke-width: 2.7; stroke-linecap: round; }
+.closed-eyes, .neutral-mouth { fill: none; }
+.closed-eyes, .smiling-mouth, .round-mouth, .tears { display: none; }
+.portrait[data-face="sleep"] .open-eyes,
+.portrait[data-face="cry"] .open-eyes,
+.portrait:not([data-face="neutral"]):not([data-face="sleep"]) .neutral-mouth { display: none; }
+.portrait[data-face="sleep"] .closed-eyes,
+.portrait[data-face="cry"] .closed-eyes,
+.portrait[data-face="cry"] .tears,
+.portrait[data-face="smile"] .smiling-mouth,
+.portrait[data-face="cry"] .round-mouth,
+.portrait[data-face="curious"] .round-mouth,
+.portrait[data-face="surprise"] .round-mouth { display: block; }
+.age { margin: 0 0 5px; color: #526456; font-size: .95rem; }
+.emotion { margin: 0; font-size: 1.6rem; font-weight: 700; }
+.signal { margin: 6px 0 0; color: #4b554b; }
+.care { margin-top: 23px; }
+.care h2 { font-size: 1rem; margin: 0 0 12px; }
+.actions { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); gap: 8px; }
+.actions button { min-height: 49px; padding: 8px; border: 1px solid #b5c3b5; border-radius: 12px; background: #fffdf5; color: inherit; font: inherit; cursor: pointer; }
+.actions button:hover:not(:disabled) { background: #e5ede1; border-color: #6b8772; }
+.actions button:disabled { opacity: .65; cursor: default; }
+:focus-visible { outline: 3px solid #335f50; outline-offset: 3px; }
+.notice { color: #784630; min-height: 1.3em; margin: 8px 0; }
+.help { padding: 14px 0; border-top: 1px solid #ccd5c7; }
+.help summary { cursor: pointer; }
+.help li { margin: 8px 0; }
+[hidden] { display: none !important; }
+
+@media (max-width: 620px) {
+  .nursery { padding-inline: 16px; }
+  .actions { grid-template-columns: repeat(auto-fit, minmax(102px, 1fr)); }
+}
