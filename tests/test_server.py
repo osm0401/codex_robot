@@ -31,7 +31,10 @@ def test_server_runs_on_loopback_and_returns_health(tmp_path):
         listener.bind(("127.0.0.1", 0))
         port = listener.getsockname()[1]
 
-    env = {**os.environ, "APP_PORT": str(port), "HOST": "0.0.0.0", "UVICORN_HOST": "::"}
+    env = {
+        **os.environ, "APP_PORT": str(port), "HOST": "0.0.0.0", "UVICORN_HOST": "::",
+        "BABY_SPEED": "1", "DATA_DIR": str(tmp_path / "data"),
+    }
     log = tmp_path / "server.log"
     command = [sys.executable, "-m", "app"]
     with log.open("wb") as output, subprocess.Popen(
@@ -53,6 +56,45 @@ def test_server_runs_on_loopback_and_returns_health(tmp_path):
                 response = connection.getresponse()
                 assert response.status == 200
                 assert json.loads(response.read()) == {"status": "ok"}
+
+                connection.request("GET", "/")
+                response = connection.getresponse()
+                assert response.status == 200
+                page = response.read().decode()
+                assert "<svg" in page
+                for action in ("feed", "burp", "diaper", "sleep", "hold"):
+                    assert f'data-care="{action}"' in page
+
+                connection.request("GET", "/api/baby")
+                initial = json.loads(connection.getresponse().read())
+                connection.request("POST", "/api/baby/care", '{"action":"diaper"}',
+                                   {"Content-Type": "application/json"})
+                diaper = json.loads(connection.getresponse().read())
+                assert diaper["needs"]["hunger"] >= initial["needs"]["hunger"]
+                assert diaper["needs"]["diaper"] < initial["needs"]["diaper"]
+
+                connection.request("POST", "/api/baby/care", '{"action":"feed"}',
+                                   {"Content-Type": "application/json"})
+                response = connection.getresponse()
+                assert response.status == 200
+                assert json.loads(response.read())["needs"]["hunger"] < diaper["needs"]["hunger"]
+
+                connection.request("POST", "/api/baby/care", '{"action":"feed"}',
+                                   {"Content-Type": "application/json", "Origin": "https://other.example"})
+                response = connection.getresponse()
+                assert response.status == 403
+                response.read()
+
+                connection.request("POST", "/api/baby/care", '{"action":"invalid-action"}',
+                                   {"Content-Type": "application/json"})
+                response = connection.getresponse()
+                assert response.status == 422
+                assert b"invalid-action" not in response.read()
+
+                connection.request("GET", "/openapi.json")
+                response = connection.getresponse()
+                assert response.status == 404
+                response.read()
             finally:
                 connection.close()
         finally:
